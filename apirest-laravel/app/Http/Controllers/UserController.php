@@ -41,7 +41,7 @@ class UserController extends Controller
             else {
 
               // cyfrating password
-                $pwd = \password_hash($params->password, PASSWORD_BCRYPT, ['cost' => 4]);
+                $pwd = hash('sha256', $params->password);
 
               // Testing if user exist now = in validation->email(unique:users)
 
@@ -78,6 +78,13 @@ class UserController extends Controller
     } // End of Register
 
     public function login(Request $request) {
-        echo 'logeo';
+
+        $jwtAuth = new \JwtAuth();
+
+        $email = 'bmejia2404@gmail.com';
+        $password = 'admin2801';
+        $pwd = hash('sha256', $password);
+
+        return response()->json($jwtAuth->signup( $email, $pwd, true ));
     }
 }
