@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Providers\JwtAuthServiceProvider;
 use Illuminate\Http\Request;
 use App\User;
 
@@ -81,10 +82,69 @@ class UserController extends Controller
 
         $jwtAuth = new \JwtAuth();
 
+        // Reveice data for post
+
+        $json = $request->input('json', null);
+        $params = \json_decode($json);
+        $params_array = json_decode($json, true);
+
+        //validate the data
+
+        $validate = \Validator::make($params_array, [
+            'email' => 'required|email',
+            'password' => 'required'
+        ]);
+
+        if($validate->fails()) {
+            $signup = array (
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'The user is not logged successfully',
+                'errors' => $validate->errors()
+            );
+        }
+        else {
+
+          // cyfrating password
+            $pwd = hash('sha256', $params->password);
+
+          //return token or data
+            $signup = $jwtAuth->signup($params->email, $pwd);
+            if(isset($params->getToken)){
+                $signup = $jwtAuth->signup($params->email, $pwd, true);
+            }
+
+
+
+          $data = array(
+            'status' => 'success',
+            'code' => 200,
+            'message' => 'The user is logged succesfully'
+          );
+
+        }
+
+        return response()->json($data, 200);
+
+
         $email = 'bmejia2404@gmail.com';
         $password = 'admin2801';
         $pwd = hash('sha256', $password);
 
-        return response()->json($jwtAuth->signup( $email, $pwd, true ));
+        return response()->json($signup, 200);
+    }
+
+    public function update(Request $request){
+
+        $token = $request->header('Authorization');
+        $jwtAuth = new \JwtAuth();
+        $checkToken = $jwtAuth->checkToken($token);
+
+        if($checkToken){
+            echo '<h1> Login Succesfully </h1>';
+        }else {
+            echo '<h1> Login Incorrect. :(</h1>';
+        }
+        die();
     }
 }
