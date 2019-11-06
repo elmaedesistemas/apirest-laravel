@@ -26,7 +26,7 @@ class UserController extends Controller
 
             $validate = \Validator::make($params_array, [
                 'name' => 'required|alpha',
-                'surname' => 'required|alpha',
+                'username' => 'required|alpha',
                 'email' => 'required|email|unique:users',
                 'password' => 'required'
             ]);
@@ -41,16 +41,16 @@ class UserController extends Controller
             }
             else {
 
-              // cyfrating password
+              //  encrrypt password
                 $pwd = hash('sha256', $params->password);
 
               // Testing if user exist now = in validation->email(unique:users)
 
+              
               //Create user
-
               $user = new User();
               $user->name = $params_array['name'];
-              $user->surname = $params_array['surname'];
+              $user->username = $params_array['username'];
               $user->email = $params_array['email'];
               $user->password = $pwd;
 
