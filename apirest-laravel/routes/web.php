@@ -31,3 +31,7 @@ Route::resource('api/categories', 'CategoriesController');
 
 // Router of Posts
 Route::resource('api/posts', 'PostsController');
+Route::post('api/posts/upload','PostsController@upload');
+Route::get('api/posts/image/{filename}', 'PostsController@getImage');
+Route::get('api/user/category/{id}', 'PostsController@getPostsByCategory');
+Route::get('api/user/user/{id}', 'PostsController@getPostsByUser');

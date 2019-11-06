@@ -17,4 +17,13 @@ class Posts extends Model
     public function categories() {
         return $this->belongsTo('App\Categories', 'category_id');
     }
+
+     /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'title', 'content', 'category_id',
+    ];
 }
