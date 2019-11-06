@@ -11,6 +11,9 @@
 |
 */
 
+// Charge class
+use App\Http\Middleware\ApiAuthMiddleware;
+
 Route::get('/', function () {
     return view('welcome');
 });
@@ -19,4 +22,4 @@ Route::get('/', function () {
 Route::post('user/register', 'UserController@register');
 Route::post('user/login', 'UserController@login');
 Route::put('user/update', 'UserController@update');
-Route::post('user/upload', 'UserController@upload');
+Route::post('user/upload','UserController@upload')->middleware(ApiAuthMiddleware::class);

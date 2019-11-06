@@ -127,10 +127,7 @@ class UserController extends Controller
 
     public function update(Request $request){
 
-        // check if user is identified
-        $token = $request->header('Authorization');
-        $jwtAuth = new \JwtAuth();
-        $checkToken = $jwtAuth->checkToken($token);
+       
 
         // collect data for post
         $json = $request->input('json', null);
@@ -188,12 +185,37 @@ class UserController extends Controller
 
     public function upload(Request $request){
 
-         $data = array(
-            'code' => 500,
-            'status' => 'error',
-            'message' => 'user not identified successfully'
-        );
+        // collect data of request
+        $image = $request->file('file0');
 
-        return respons()->json($data, $data['code']);
+
+        //validate photo
+
+        $validate = \Validator::make($request->all(), [
+            'file0' => 'required|image|mimes: jpg,jpeg,png'
+
+        ]);
+
+        // save photo
+        if(!$image || $validate->fails()){
+
+            $data = array(
+                'code' => 500,
+                'status' => 'error',
+                'message' => 'Error to charge photo'
+            );
+
+        } else {
+            $image_name = time().$image->getClientOriginalName();
+            \Storage::disk('users')->put($image_name, \File::get($image));
+
+            $data = array(
+                'code' => 200,
+                'status' => 'success',
+                'image' => $image_name
+            );
+        }
+
+        return response()->json($data, $data['code']);
     }
 }
