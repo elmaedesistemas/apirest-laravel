@@ -17,7 +17,7 @@ class UserController extends Controller
         $params_array = json_decode($json, true);
 
         // Testing if data is empty
-        if(!empty($params_array) && !empty($params)) {
+        if(!empty($params_array) && !empty($params_array)) {
 
             // Clean data
             $params_array = array_map('trim', $params_array);
@@ -53,6 +53,7 @@ class UserController extends Controller
               $user->username = $params_array['username'];
               $user->email = $params_array['email'];
               $user->password = $pwd;
+              $user->role = 'ROLE_USER';
 
               //Save user
 
@@ -61,7 +62,8 @@ class UserController extends Controller
               $data = array(
                 'status' => 'success',
                 'code' => 200,
-                'message' => 'The user is created succesfully'
+                'message' => 'The user is created succesfully',
+                'user' => $user
               );
 
             }
@@ -86,11 +88,12 @@ class UserController extends Controller
 
         $json = $request->input('json', null);
         $params = \json_decode($json);
-        $params_array = json_decode($json, true);
+        $params_array = \json_decode($json, true);
 
-        //validate the data
+          //   //validate the data
 
-        $validate = \Validator::make($params_array, [
+
+          $validate = \Validator::make($params_array, [
             'email' => 'required|email',
             'password' => 'required'
         ]);
@@ -105,46 +108,92 @@ class UserController extends Controller
         }
         else {
 
-          // cyfrating password
+          //  encrrypt password
             $pwd = hash('sha256', $params->password);
 
-          //return token or data
+            //return token or data
             $signup = $jwtAuth->signup($params->email, $pwd);
+
             if(isset($params->getToken)){
                 $signup = $jwtAuth->signup($params->email, $pwd, true);
             }
-
-
-
-          $data = array(
-            'status' => 'success',
-            'code' => 200,
-            'message' => 'The user is logged succesfully'
-          );
-
         }
 
-        return response()->json($data, 200);
-
-
-        $email = 'bmejia2404@gmail.com';
-        $password = 'admin2801';
-        $pwd = hash('sha256', $password);
-
         return response()->json($signup, 200);
+    
+
+        //return response()->json($signup, 200);
     }
 
     public function update(Request $request){
 
+        // check if user is identified
         $token = $request->header('Authorization');
         $jwtAuth = new \JwtAuth();
         $checkToken = $jwtAuth->checkToken($token);
 
-        if($checkToken){
-            echo '<h1> Login Succesfully </h1>';
+        // collect data for post
+        $json = $request->input('json', null);
+        $params_array = json_decode($json, true);
+
+        if($checkToken && !empty($params_array)){
+
+            //Update user
+
+            // Out user identified
+            $user = $jwtAuth->checkToken($token, true);
+
+            // validate data
+            $validate = \Validator::make($params_array, [
+                'name' => 'required|alpha',
+                'username' => 'required|alpha',
+                'email' => 'required|email|unique:users,'.$user->sub
+            ]);
+
+            // remove fields that i dont want to update
+
+            unset($params_array['id']);
+            unset($params_array['role']);
+            unset($params_array['created_at']);
+            unset($params_array['remember_token']);
+
+
+            // Update user in database
+            $user_update = User::where('id', $user->sub)->update($params_array);
+
+            //return array
+            $data = array(
+                'code' => 200,
+                'status' => 'success',
+                'message' => 'user is updated successfully',
+                'user' => $user,
+                'changes' => $params_array
+
+            );
+
+            return response()->json($data, $data['code']);
+            
         }else {
-            echo '<h1> Login Incorrect. :(</h1>';
+
+            // Message Error
+            $data = array(
+                'code' => 500,
+                'status' => 'error',
+                'message' => 'user not identified successfully'
+            );
+
+        return response()->json($data, $data['code']);
         }
-        die();
+    }
+
+    public function upload(Request $request){
+
+         $data = array(
+            'code' => 500,
+            'status' => 'error',
+            'message' => 'user not identified successfully'
+        );
+
+        return respons()->json($data, $data['code']);
     }
 }

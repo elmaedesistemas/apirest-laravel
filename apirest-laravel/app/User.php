@@ -37,6 +37,7 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    protected $table = 'users';
     //Relation one to much
     public function posts() {
         return $this->hasMany('App\Posts');

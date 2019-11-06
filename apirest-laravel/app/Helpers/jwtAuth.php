@@ -15,7 +15,6 @@ class jwtAuth {
     }
 
     public function signup($email, $password, $getToken = null) {
-
     // search if user exist
     $user = User::where([
         'email' => $email,
@@ -28,20 +27,20 @@ class jwtAuth {
 
     $signup = false;
 
-    if(\is_object($user)){
+    if(is_object($user)){
 
         $signup = true;
     }
 
     // generate token with data of user identificated
 
-    if($signup == true) {
+    if($signup) {
 
         $token = array(
             'sub' => $user->id,
             'email' => $user->email,
             'name' => $user->name,
-            'surname' => $user->surname,
+            'username' => $user->username,
             'iat' => time(),
             'exp' => time() +(7 * 24 * 60 * 60)
         );
