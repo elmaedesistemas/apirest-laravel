@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Providers\JwtAuthServiceProvider;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use App\User;
 
 class UserController extends Controller
@@ -216,6 +217,43 @@ class UserController extends Controller
             );
         }
 
+        return response()->json($data, $data['code']);
+    }
+
+    public function getImage($filename) {
+        $isset = \Storage::disk('users')->exists($filename);
+        if($isset){
+            $file = \Storage::disk('users')->get($filename);
+            return new Response($file, 200);
+        } else {
+            $data = array(
+                'code' => 404,
+                'status' => 'error',
+                'message' => 'Picture not found'
+            );
+        }
+        
+    }
+
+    public function detail($id) {
+        $user = User::find($id);
+
+        if(is_object($user)){
+            $data = array (
+                'code' => 200,
+                'status' => 'success',
+                'user' => $user
+            );
+
+        } else {
+
+            $data = array(
+                'code' => 500,
+                'status' => 'error',
+                'message' => 'User is not exist'
+            );    
+        }
+        
         return response()->json($data, $data['code']);
     }
 }
