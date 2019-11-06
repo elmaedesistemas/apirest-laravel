@@ -28,3 +28,6 @@ Route::get('api/user/detail/{id}', 'UserController@detail');
 
 // Router of categories
 Route::resource('api/categories', 'CategoriesController');
+
+// Router of Posts
+Route::resource('api/posts', 'PostsController');
